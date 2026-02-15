@@ -1219,52 +1219,54 @@ def calculate_prior_and_posterior_beliefs(node, n_samples=4, model="gpt-4o", tem
 if __name__ == "__main__":
 
     # Unit test
-    from mcts_utils import load_mcts_from_json
+    path = None  # Add path to results directory
+    if path is not None:
+        from mcts_utils import load_mcts_from_json
+        root, nodes_by_level = load_mcts_from_json(path)
+        belief_kl = []
+        prior_posterior = []
+        for level, nodes in nodes_by_level.items():
+            for node in nodes:
+                if node.prior is not None:
+                    belief_cls = BELIEF_MODE_TO_CLS[node.prior.to_dict()["_type"]]
+                    prior = node.prior
+                    posterior = node.posterior
+                    belief_change = round(posterior.mean - prior.mean, 2)
+                    kl_div = round(belief_cls.kl_divergence(posterior, prior), 2)
+                    belief_kl.append((belief_change, kl_div))
+                    prior_posterior.append((prior.get_params(), posterior.get_params()))
+        print(f"Total nodes: {len(belief_kl)}\n\n")
+        # Print statistics (percentiles, mean, std) of belief change and KL divergence
+        belief_changes = [abs(bc[0]) for bc in belief_kl]
+        kl_divergences = [bc[1] for bc in belief_kl]
+        print(f"Belief Change - Mean: {np.mean(belief_changes):.2f}, Std: {np.std(belief_changes):.2f}")
+        print(f"Belief Change - Min: {np.min(belief_changes):.2f}, Max: {np.max(belief_changes):.2f}")
+        print(f"Belief Change - 25th Percentile: {np.percentile(belief_changes, 25):.2f}")
+        print(f"Belief Change - 50th Percentile: {np.percentile(belief_changes, 50):.2f}")
+        print(f"Belief Change - 75th Percentile: {np.percentile(belief_changes, 75):.2f}")
 
-    path = "/Users/dagarwal/code/github/allenai/autods-humans/debug/20250826-181702"
-    root, nodes_by_level = load_mcts_from_json(path)
-    belief_kl = []
-    prior_posterior = []
-    for level, nodes in nodes_by_level.items():
-        for node in nodes:
-            if node.prior is not None:
-                belief_cls = BELIEF_MODE_TO_CLS[node.prior.to_dict()["_type"]]
-                prior = node.prior
-                posterior = node.posterior
-                belief_change = round(posterior.mean - prior.mean, 2)
-                kl_div = round(belief_cls.kl_divergence(posterior, prior), 2)
-                belief_kl.append((belief_change, kl_div))
-                prior_posterior.append((prior.get_params(), posterior.get_params()))
-    print(f"Total nodes: {len(belief_kl)}\n\n")
-    # Print statistics (percentiles, mean, std) of belief change and KL divergence
-    belief_changes = [abs(bc[0]) for bc in belief_kl]
-    kl_divergences = [bc[1] for bc in belief_kl]
-    print(f"Belief Change - Mean: {np.mean(belief_changes):.2f}, Std: {np.std(belief_changes):.2f}")
-    print(f"Belief Change - Min: {np.min(belief_changes):.2f}, Max: {np.max(belief_changes):.2f}")
-    print(f"Belief Change - 25th Percentile: {np.percentile(belief_changes, 25):.2f}")
-    print(f"Belief Change - 50th Percentile: {np.percentile(belief_changes, 50):.2f}")
-    print(f"Belief Change - 75th Percentile: {np.percentile(belief_changes, 75):.2f}")
+        print(f"KL Divergence - Mean: {np.mean(kl_divergences):.2f}, Std: {np.std(kl_divergences):.2f}")
+        print(f"KL Divergence - Min: {np.min(kl_divergences):.2f}, Max: {np.max(kl_divergences):.2f}")
+        print(f"KL Divergence - 25th Percentile: {np.percentile(kl_divergences, 25):.2f}")
+        print(f"KL Divergence - 50th Percentile: {np.percentile(kl_divergences, 50):.2f}")
+        print(f"KL Divergence - 75th Percentile: {np.percentile(kl_divergences, 75):.2f}\n\n")
 
-    print(f"KL Divergence - Mean: {np.mean(kl_divergences):.2f}, Std: {np.std(kl_divergences):.2f}")
-    print(f"KL Divergence - Min: {np.min(kl_divergences):.2f}, Max: {np.max(kl_divergences):.2f}")
-    print(f"KL Divergence - 25th Percentile: {np.percentile(kl_divergences, 25):.2f}")
-    print(f"KL Divergence - 50th Percentile: {np.percentile(kl_divergences, 50):.2f}")
-    print(f"KL Divergence - 75th Percentile: {np.percentile(kl_divergences, 75):.2f}\n\n")
+        # Print a table of belief change, KL divergence, and prior/posterior parameters in sorted order of KL divergence
+        print(f"{'Belief Change':<20} {'KL Divergence':<20} {'Prior Params':<50} {'Posterior Params':<50}")
+        sorted_tuples = sorted(zip(belief_kl, prior_posterior), key=lambda x: x[0][1])
+        for (belief_change, kl_div), (prior_params, posterior_params) in sorted_tuples:
+            prior_params_str = ", ".join(f"{p:.2f}" for p in prior_params)
+            posterior_params_str = ", ".join(f"{p:.2f}" for p in posterior_params)
+            print(
+                f"{belief_change:<20} {round(kl_div / np.mean(kl_divergences), 2):<20} {prior_params_str:<50} {posterior_params_str:<50}")
 
-    # Print a table of belief change, KL divergence, and prior/posterior parameters in sorted order of KL divergence
-    print(f"{'Belief Change':<20} {'KL Divergence':<20} {'Prior Params':<50} {'Posterior Params':<50}")
-    sorted_tuples = sorted(zip(belief_kl, prior_posterior), key=lambda x: x[0][1])
-    for (belief_change, kl_div), (prior_params, posterior_params) in sorted_tuples:
-        prior_params_str = ", ".join(f"{p:.2f}" for p in prior_params)
-        posterior_params_str = ", ".join(f"{p:.2f}" for p in posterior_params)
-        print(
-            f"{belief_change:<20} {round(kl_div / np.mean(kl_divergences), 2):<20} {prior_params_str:<50} {posterior_params_str:<50}")
+        print("\n\n")
 
-    print("\n\n")
-
-    sorted_tuples = sorted(zip(belief_kl, prior_posterior), key=lambda x: abs(x[0][0]))
-    for (belief_change, kl_div), (prior_params, posterior_params) in sorted_tuples:
-        prior_params_str = ", ".join(f"{p:.2f}" for p in prior_params)
-        posterior_params_str = ", ".join(f"{p:.2f}" for p in posterior_params)
-        print(
-            f"{belief_change:<20} {round(kl_div / np.mean(kl_divergences), 2):<20} {prior_params_str:<50} {posterior_params_str:<50}")
+        sorted_tuples = sorted(zip(belief_kl, prior_posterior), key=lambda x: abs(x[0][0]))
+        for (belief_change, kl_div), (prior_params, posterior_params) in sorted_tuples:
+            prior_params_str = ", ".join(f"{p:.2f}" for p in prior_params)
+            posterior_params_str = ", ".join(f"{p:.2f}" for p in posterior_params)
+            print(
+                f"{belief_change:<20} {round(kl_div / np.mean(kl_divergences), 2):<20} {prior_params_str:<50} {posterior_params_str:<50}")
+    else:
+        print("No path provided for unit test. Please add the path to the results directory to run the unit test.")

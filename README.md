@@ -9,7 +9,7 @@ Create the environment with:
 
 ```sh
 conda env create -f environment.yml
-conda activate autods
+conda activate autodiscovery
 ```
 
 Set environment variables:
@@ -46,7 +46,7 @@ rm -rf temp_db
 ### BYO-Datasets!
 You can also use your own datasets. To do this, pass in a dataset metadata JSON file containing descriptions of the paths of datasets (relative to the metadata file) and their column descriptions in natural language. You can have a look at the metadata files in the `DiscoveryBench` directory from above as examples.
 
-## Run AutoDS (MCTS-based hypothesis search and verification)
+## Run AutoDiscovery (MCTS-based hypothesis search and verification)
 
 For example, to explore the DiscoveryBench NLS SES dataset, the following command can be used:
 

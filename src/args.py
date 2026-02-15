@@ -3,7 +3,7 @@ import argparse
 
 class ArgParser(argparse.ArgumentParser):
     def __init__(self, group=None):
-        super().__init__(description='Run AutoDS exploration')
+        super().__init__(description='AutoDiscovery configuration')
 
         self.add_argument('--dataset_metadata', type=str, required=True, help='Path to dataset metadata.')
         self.add_argument('--out_dir', type=str, required=True, help='Output directory for logs.')

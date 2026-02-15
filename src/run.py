@@ -200,7 +200,7 @@ def run_mcts(
         warmstart_experiments=None
 ):
     """
-    Run AutoDS exploration. In MCTS, root node level=0 is a dummy node with no experiment, level=1 is the first real node with the dataset loading experiment, levels > 1 are the actual MCTS nodes with hypotheses and experiments.
+    Run AutoDiscovery. In MCTS, root node level=0 is a dummy node with no experiment, level=1 is the first real node with the dataset loading experiment, levels > 1 are the actual MCTS nodes with hypotheses and experiments.
 
     Args:
         root: Root MCTSNode to continue from.
