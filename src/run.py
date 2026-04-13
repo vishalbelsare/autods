@@ -374,9 +374,9 @@ def run_mcts(
     save_nodes(nodes_by_level, log_dirname, run_dedupe, belief_model_name, time_elapsed=time_elapsed)
 
 
-if __name__ == "__main__":
+def main(argv=None):
     parser = ArgParser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     print("Script arguments:")
     print(args.__dict__, "\n")
 
@@ -423,7 +423,7 @@ if __name__ == "__main__":
         if args.only_save_results:
             # Save nodes to JSON and exit
             save_nodes(nodes_by_level, log_dirname, run_dedupe=args.dedupe, model=args.belief_model)
-            exit(0)
+            raise SystemExit(0)
 
         if args.continue_from_dir is not None:
             # Copy all files except args.json from continue_from_dir to the new log directory
@@ -443,7 +443,7 @@ if __name__ == "__main__":
         remaining_iters = (args.n_experiments + 1) - total_nodes  # + 1 to account for root node
         if remaining_iters <= 0:
             print(f"Already reached or exceeded target of {args.n_experiments} experiments")
-            exit(0)
+            raise SystemExit(0)
         print(
             f"RESUMING: Running {remaining_iters} more experiments to reach the target experiment count of {args.n_experiments}.\n")
     else:
@@ -514,3 +514,7 @@ if __name__ == "__main__":
         print(f"\nDELETED WORKING DIRECTORY: {args.work_dir}")
 
     print(f"\nRUN FINISHED!\n\nLOGS: {log_dirname}")
+
+
+if __name__ == "__main__":
+    main()
