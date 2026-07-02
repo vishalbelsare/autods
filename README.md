@@ -3,6 +3,8 @@
 
 > Link to our NeurIPS 2025 paper: [AutoDiscovery: Open-ended Scientific Discovery via Bayesian Surprise](https://openreview.net/pdf?id=kJqTkj2HhF)
 
+If you are interested in the code behind Asta's [autodiscovery.allen.ai](https://autodiscovery.allen.ai) head on over to the [asta-autodiscovery repo](https://github.com/allenai/asta-autodiscovery) and check out [wiki/AutoDiscovery-Changes-Since-NeurIPS](https://github.com/allenai/asta-autodiscovery/wiki/AutoDiscovery-Changes-Since-NeurIPS).
+
 ## Installation
 
 ### pip (command-line tool)
